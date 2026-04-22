@@ -1,0 +1,91 @@
+name: iOS Build & Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Build & sign iOS
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+      # -----------------------------------------------------------------------
+      # Code signing — runs only on pushes to main (not PRs)
+      # Requires these repository secrets:
+      #   IOS_CERTIFICATE_BASE64      — base64-encoded .p12 distribution cert
+      #   IOS_CERTIFICATE_PASSWORD    — password for the .p12
+      #   IOS_PROVISIONING_PROFILE    — base64-encoded .mobileprovision
+      #   KEYCHAIN_PASSWORD           — any strong password, used only in CI
+      #   APP_STORE_CONNECT_KEY_ID    — App Store Connect API key ID
+      #   APP_STORE_CONNECT_ISSUER_ID — App Store Connect issuer UUID
+      #   APP_STORE_CONNECT_KEY_BASE64 — base64-encoded .p8 API private key
+      # -----------------------------------------------------------------------
+      - name: Import signing certificate
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          # Decode secrets to temp files
+          echo "$CERTIFICATE_BASE64" | base64 --decode -o certificate.p12
+          echo "$PROVISIONING_PROFILE_BASE64" | base64 --decode -o profile.mobileprovision
+
+          # Create a temporary keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security set-keychain-settings -t 3600 -u build.keychain
+
+          # Import the certificate
+          security import certificate.p12 -k build.keychain \
+            -P "$CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list \
+            -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" build.keychain
+
+          # Install provisioning profile
+          PP_UUID=$(grep -a -A1 'UUID' profile.mobileprovision \
+            | grep string | sed 's/.*<string>\(.*\)<\/string>.*/\1/')
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp profile.mobileprovision \
+            ~/Library/MobileDevice/Provisioning\ Profiles/"$PP_UUID".mobileprovision
+
+      - name: Build IPA
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: flutter build ipa --release --no-codesign
+
+      - name: Upload to TestFlight
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_KEY_BASE64 }}
+        run: |
+          echo "$KEY_BASE64" | base64 --decode -o AuthKey_"$KEY_ID".p8
+          xcrun altool --upload-app \
+            -f build/ios/ipa/*.ipa \
+            --type ios \
+            --apiKey "$KEY_ID" \
+            --apiIssuer "$ISSUER_ID" \
+            --private-key AuthKey_"$KEY_ID".p8
