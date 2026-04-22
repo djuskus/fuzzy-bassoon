@@ -1,0 +1,4 @@
+git_url "https://github.com/djuskus/refactored-telegram-secretive"
+storage_mode "git"
+type "appstore"
+app_identifier "com.ultaire.blessedreadings"

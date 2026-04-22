@@ -41,6 +41,12 @@ ios/*.xcworkspace/xcuserdata/
 ios/Flutter/Generated.xcconfig
 ios/Flutter/flutter_export_environment.sh
 
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/
+
 # Symbolication related
 app.*.symbols
 
