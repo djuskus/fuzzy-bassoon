@@ -1,17 +1,13 @@
-# main_app
+# Marginalia
 
-A new Flutter project.
+A curated literary repository for iOS. Users browse essays and excerpts, filter by subject and author, and submit requests for texts they want added.
 
-## Getting Started
+Built as an exercise in shipping an iOS app as fast as possible — notably without owning any Apple hardware. The CI/CD pipeline runs entirely on GitHub Actions macOS runners, using Fastlane match to generate and manage code signing certificates via the App Store Connect API. Every push to `master` builds and ships to TestFlight with no local Mac involved.
 
-This project is a starting point for a Flutter application.
+## Stack
 
-A few resources to get you started if this is your first Flutter project:
+Flutter · FastAPI · SQLite · Cloudflare R2 · Railway · Fastlane · TestFlight
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Getting started
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+See [docs/getting-started.md](docs/getting-started.md).
