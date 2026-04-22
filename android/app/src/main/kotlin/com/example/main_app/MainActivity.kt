@@ -1,4 +1,4 @@
-package com.example.main_app
+package com.ultaire.blessedreadings
 
 import io.flutter.embedding.android.FlutterActivity
 
