@@ -9,7 +9,11 @@ set -euo pipefail
 : "${MAC_PASSWORD:?Set MAC_PASSWORD}"
 : "${MAC_SSH_PORT:=22}"
 
-ssh -p "$MAC_SSH_PORT" "$MAC_USER@$MAC_IP" bash << 'REMOTE'
+sshpass -p "$MAC_PASSWORD" ssh \
+  -o StrictHostKeyChecking=no \
+  -o PubkeyAuthentication=no \
+  -p "$MAC_SSH_PORT" \
+  "$MAC_USER@$MAC_IP" zsh -l << 'REMOTE'
   set -euo pipefail
 
   cd ~/fuzzy-bassoon 2>/dev/null || {
@@ -19,10 +23,11 @@ ssh -p "$MAC_SSH_PORT" "$MAC_USER@$MAC_IP" bash << 'REMOTE'
 
   git pull origin master
 
-  export PATH="$PATH:/usr/local/bin:$HOME/flutter/bin"
+  export PATH="/Users/user944308/flutter/bin:/usr/local/bin:$PATH"
+  command -v flutter || { echo "ERROR: flutter not found"; exit 1; }
 
   flutter pub get
   flutter precache --ios
-  flutter build ios --release --no-codesign
+  flutter build ios --release --no-codesign --verbose
   echo "Flutter build complete"
 REMOTE
