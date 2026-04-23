@@ -25,6 +25,7 @@ platform :ios do
 
     update_code_signing_settings(
       use_automatic_signing: false,
+      path: "ios/Runner.xcodeproj",
       team_id: "VH5B36Z9UD",
       targets: ["Runner"],
       code_sign_identity: "iPhone Distribution",
