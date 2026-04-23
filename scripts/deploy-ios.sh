@@ -42,6 +42,7 @@ sshpass -p "$MAC_PASSWORD" ssh \
 
   echo "--- Flutter pub get ---"
   flutter pub get
+  flutter pub run flutter_launcher_icons
   flutter precache --ios
 
   echo "--- Setting up keychain ---"

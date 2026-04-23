@@ -143,6 +143,7 @@ class _MarginaliaHomeState extends State<MarginaliaHome> {
                 index: _tab,
                 children: [
                   _LibraryPage(authorFilter: _authorFilter),
+                  const _ReaderPage(),
                   _AuthorsPage(onAuthorTap: _filterByAuthor),
                   const _RequestsPage(),
                 ],
@@ -198,14 +199,19 @@ class _TopBar extends StatelessWidget {
                 onTap: () => onTabChanged(0),
               ),
               _NavTab(
-                label: 'By author',
+                label: 'Read',
                 active: tab == 1,
                 onTap: () => onTabChanged(1),
               ),
               _NavTab(
-                label: 'Requests',
+                label: 'By author',
                 active: tab == 2,
                 onTap: () => onTabChanged(2),
+              ),
+              _NavTab(
+                label: 'Requests',
+                active: tab == 3,
+                onTap: () => onTabChanged(3),
               ),
             ],
           ),
@@ -917,6 +923,93 @@ class _TextCardState extends State<_TextCard> {
           ],
         ),
       ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Reader page — infinite scroll feed
+// ---------------------------------------------------------------------------
+
+class _ReaderPage extends StatelessWidget {
+  const _ReaderPage();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      padding: const EdgeInsets.fromLTRB(28, 32, 28, 48),
+      itemCount: _texts.length,
+      separatorBuilder: (_, _) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 36),
+        child: Row(
+          children: [
+            Expanded(
+              child: Divider(
+                color: Colors.white.withValues(alpha: 0.08),
+                thickness: 0.5,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              child: Text(
+                '✦',
+                style: TextStyle(
+                  fontSize: 10,
+                  color: _gold.withValues(alpha: 0.4),
+                ),
+              ),
+            ),
+            Expanded(
+              child: Divider(
+                color: Colors.white.withValues(alpha: 0.08),
+                thickness: 0.5,
+              ),
+            ),
+          ],
+        ),
+      ),
+      itemBuilder: (context, i) {
+        final t = _texts[i];
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '${t['type']} · ${t['subject']}',
+              style: TextStyle(
+                fontSize: 10,
+                letterSpacing: 1.2,
+                color: _gold.withValues(alpha: 0.7),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              t['title']!,
+              style: GoogleFonts.playfairDisplay(
+                fontSize: 22,
+                color: _cream,
+                height: 1.3,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              t['author']!,
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.white.withValues(alpha: 0.35),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              t['excerpt']!,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.white.withValues(alpha: 0.7),
+                height: 1.8,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

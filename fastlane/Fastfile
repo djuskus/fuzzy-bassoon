@@ -29,6 +29,9 @@ platform :ios do
       keychain_password: "ci_temp"
     )
 
+    current = latest_testflight_build_number(api_key: api_key)
+    increment_build_number(build_number: current + 1, xcodeproj: "ios/Runner.xcodeproj")
+
     update_code_signing_settings(
       use_automatic_signing: false,
       path: "ios/Runner.xcodeproj",
