@@ -53,9 +53,9 @@ sshpass -p "$MAC_PASSWORD" ssh \
   echo "--- Running Fastlane $LANE ---"
   bundle exec fastlane $LANE || {
     echo "==> Fastlane failed. Gym log:"
-    find ~/Library/Logs/gym ~/fuzzy-bassoon/build/gym_logs -name "*.log" 2>/dev/null | while read f; do
-      echo "--- $f ---"
-      tail -50 "$f"
+    find ~/Library/Logs/gym ~/fuzzy-bassoon/build/gym_logs -name "*.log" 2>/dev/null | while read logfile; do
+      echo "--- \$logfile ---"
+      tail -50 "\$logfile"
     done
     exit 1
   }
