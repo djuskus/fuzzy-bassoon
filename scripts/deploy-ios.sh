@@ -26,6 +26,8 @@ sshpass -p "$MAC_PASSWORD" ssh \
   set -euo pipefail
   export PATH="/Users/$MAC_USER/flutter/bin:/usr/local/bin:\$HOME/.gem/bin:\$PATH"
   export GEM_HOME="\$HOME/.gem"
+  export LANG=en_US.UTF-8
+  export LC_ALL=en_US.UTF-8
 
   export APP_STORE_CONNECT_KEY_ID="$APP_STORE_CONNECT_KEY_ID"
   export APP_STORE_CONNECT_ISSUER_ID="$APP_STORE_CONNECT_ISSUER_ID"
@@ -48,7 +50,14 @@ sshpass -p "$MAC_PASSWORD" ssh \
   security set-keychain-settings -t 3600 ~/Library/Keychains/ci.keychain
 
   echo "--- Running Fastlane $LANE ---"
-  bundle exec fastlane $LANE
+  bundle exec fastlane $LANE || {
+    echo "==> Fastlane failed. Gym log:"
+    find ~/Library/Logs/gym ~/fuzzy-bassoon/build/gym_logs -name "*.log" 2>/dev/null | while read f; do
+      echo "--- $f ---"
+      tail -50 "$f"
+    done
+    exit 1
+  }
 
   echo ""
   echo "==> Deploy complete."
