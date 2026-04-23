@@ -21,7 +21,13 @@ platform :ios do
       is_key_content_base64: true
     )
 
-    match(type: "appstore", readonly: true, api_key: api_key)
+    match(
+      type: "appstore",
+      readonly: true,
+      api_key: api_key,
+      keychain_name: "ci.keychain",
+      keychain_password: "ci_temp"
+    )
 
     update_code_signing_settings(
       use_automatic_signing: false,
