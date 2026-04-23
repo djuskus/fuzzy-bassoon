@@ -48,10 +48,16 @@ jobs:
           ruby-version: "3.3"
           bundler-cache: true
 
-      - name: Build Flutter iOS
+      - name: Cache DerivedData
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Developer/Xcode/DerivedData
+          key: derived-data-${{ hashFiles('ios/Podfile.lock', 'pubspec.lock') }}
+          restore-keys: derived-data-
+
+      - name: Configure Xcode project
         if: github.ref == 'refs/heads/master' || github.event_name == 'workflow_dispatch'
-        timeout-minutes: 5
-        run: flutter build ios --release --no-codesign
+        run: flutter build ios --config-only --release
 
       - name: Run Fastlane
         if: github.ref == 'refs/heads/master' || github.event_name == 'workflow_dispatch'
@@ -64,14 +70,23 @@ jobs:
           APP_STORE_CONNECT_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_KEY_BASE64 }}
           FASTLANE_XCODE_LIST_TIMEOUT: "120"
           FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: "120"
-        run: bundle exec fastlane ${{ github.event.inputs.lane || 'beta' }}
+        run: |
+          # Stream gym log in real-time as Fastlane writes it
+          LOG=build/gym_logs/Runner-Runner.log
+          mkdir -p build/gym_logs
+          ( while [ ! -f "$LOG" ]; do sleep 2; done; tail -f "$LOG" ) &
+          TAIL_PID=$!
 
-      - name: Print Xcode build log
+          bundle exec fastlane ${{ github.event.inputs.lane || 'beta' }}
+
+          kill $TAIL_PID 2>/dev/null || true
+
+      - name: Print full Xcode build log
         if: always()
         run: |
           LOG=build/gym_logs/Runner-Runner.log
           if [ -f "$LOG" ]; then
-            echo "=== Xcode build log ==="
+            echo "=== Full Xcode build log ==="
             cat "$LOG"
           else
             echo "No gym log found at $LOG"
