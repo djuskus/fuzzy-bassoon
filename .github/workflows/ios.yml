@@ -55,7 +55,7 @@ jobs:
 
       - name: Run Fastlane
         if: github.ref == 'refs/heads/master' || github.event_name == 'workflow_dispatch'
-        timeout-minutes: 5
+        timeout-minutes: 3
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
@@ -69,10 +69,11 @@ jobs:
       - name: Print Xcode build log
         if: always()
         run: |
-          LOG=~/Library/Logs/gym/Runner-Runner.log
+          LOG=build/gym_logs/Runner-Runner.log
           if [ -f "$LOG" ]; then
             echo "=== Xcode build log ==="
             cat "$LOG"
           else
-            echo "No gym log found"
+            echo "No gym log found at $LOG"
+            find ~/Library/Logs/gym build -name "*.log" 2>/dev/null || echo "No logs found anywhere"
           fi
