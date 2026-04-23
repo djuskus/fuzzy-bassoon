@@ -38,7 +38,8 @@ sshpass -p "$MAC_PASSWORD" ssh \
 
   echo "--- Pulling latest code ---"
   cd ~/fuzzy-bassoon
-  git pull origin master
+  git fetch origin
+  git reset --hard origin/master
 
   echo "--- Flutter pub get ---"
   flutter pub get
