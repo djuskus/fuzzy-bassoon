@@ -55,7 +55,7 @@ jobs:
 
       - name: Run Fastlane
         if: github.ref == 'refs/heads/master' || github.event_name == 'workflow_dispatch'
-        timeout-minutes: 3
+        timeout-minutes: 20
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
