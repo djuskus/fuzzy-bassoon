@@ -1,7 +1,7 @@
 default_platform(:ios)
 
 platform :ios do
-  desc "Sync/create certificates and profiles (run this first to initialise match)"
+  desc "Sync/create certificates and profiles (run once to initialise match)"
   lane :certs do
     api_key = app_store_connect_api_key(
       key_id: ENV["APP_STORE_CONNECT_KEY_ID"],
@@ -22,6 +22,14 @@ platform :ios do
     )
 
     match(type: "appstore", readonly: true, api_key: api_key)
+
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      team_id: "VH5B36Z9UD",
+      targets: ["Runner"],
+      code_sign_identity: "iPhone Distribution",
+      profile_name: "match AppStore com.ultaire.blessedreadings"
+    )
 
     sh("flutter build ios --release --no-codesign")
 
