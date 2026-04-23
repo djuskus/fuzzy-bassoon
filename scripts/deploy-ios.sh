@@ -28,6 +28,7 @@ sshpass -p "$MAC_PASSWORD" ssh \
   export GEM_HOME="\$HOME/.gem"
   export LANG=en_US.UTF-8
   export LC_ALL=en_US.UTF-8
+  export RUBYOPT="-EUTF-8"
 
   export APP_STORE_CONNECT_KEY_ID="$APP_STORE_CONNECT_KEY_ID"
   export APP_STORE_CONNECT_ISSUER_ID="$APP_STORE_CONNECT_ISSUER_ID"
