@@ -38,6 +38,8 @@ platform :ios do
       workspace: "ios/Runner.xcworkspace",
       scheme: "Runner",
       export_method: "app-store",
+      xcargs: "-verbose",
+      buildlog_path: "build/gym_logs",
       export_options: {
         provisioningProfiles: {
           "com.ultaire.blessedreadings" => "match AppStore com.ultaire.blessedreadings"
