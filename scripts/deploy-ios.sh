@@ -46,6 +46,9 @@ sshpass -p "$MAC_PASSWORD" ssh \
   flutter pub run flutter_launcher_icons
   flutter precache --ios
 
+  echo "--- Pod install ---"
+  cd ios && pod install --repo-update && cd ..
+
   echo "--- Setting up keychain ---"
   security create-keychain -p "ci_temp" ~/Library/Keychains/ci.keychain 2>/dev/null || true
   security default-keychain -s ~/Library/Keychains/ci.keychain
